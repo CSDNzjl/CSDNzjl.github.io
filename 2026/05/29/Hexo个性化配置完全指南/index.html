@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csdnzjl.github.io/images/avatar.png">
 <meta property="article:published_time" content="2026-05-29T06:00:00.000Z">
-<meta property="article:modified_time" content="2026-05-29T06:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-29T10:00:00.000Z">
 <meta property="article:author" content="CSDNzjl">
 <meta property="article:tag" content="Butterfly">
 <meta property="article:tag" content="Hexo">
@@ -22,7 +22,7 @@
   "url": "https://csdnzjl.github.io/2026/05/29/Hexo%E4%B8%AA%E6%80%A7%E5%8C%96%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/",
   "image": "https://csdnzjl.github.io/images/avatar.png",
   "datePublished": "2026-05-29T06:00:00.000Z",
-  "dateModified": "2026-05-29T06:00:00.000Z",
+  "dateModified": "2026-05-29T10:00:00.000Z",
   "author": [
     {
       "@type": "Person",
@@ -76,7 +76,7 @@
         document.head.appendChild(link)
       }),
       addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
+        if (!true && key.startsWith('pjax')) return
         const globalFn = parent.globalFn || {}
         globalFn[key] = globalFn[key] || {}
         globalFn[key][name || Object.keys(globalFn[key]).length] = fn
@@ -123,9 +123,9 @@
   </script><script>const GLOBAL_CONFIG = {
   root: '/',
   algolia: undefined,
-  localSearch: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":2,"unescape":false,"pagination":{"enable":true,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
   translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":400,"highlightFullpage":false,"highlightMacStyle":true},
   copy: {
     success: '复制成功',
     error: '复制失败',
@@ -151,7 +151,7 @@
     buttonText: '加载更多'
   },
   isPhotoFigcaption: false,
-  islazyloadPlugin: false,
+  islazyloadPlugin: true,
   isAnchor: true,
   percent: {
     toc: true,
@@ -163,7 +163,8 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">CSDNzjl 的技术笔记</span></a><a class="nav-page-title" href="/"><span class="site-name">Hexo 个性化配置完全指南</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Hexo 个性化配置完全指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-29T06:00:00.000Z" title="发表于 2026-05-29 14:00:00">2026-05-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-29T06:00:00.000Z" title="更新于 2026-05-29 14:00:00">2026-05-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Hexo/">Hexo</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Hexo/%E5%8D%9A%E5%AE%A2/">博客</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>本文汇总 Hexo 博客除「写 Markdown 文章」之外的可定制项，并说明本仓库当前的实际配置，便于后续扩展。</p>
+}</script><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="CSDNzjl 的技术笔记" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">CSDNzjl 的技术笔记</span></a><a class="nav-page-title" href="/"><span class="site-name">Hexo 个性化配置完全指南</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Hexo 个性化配置完全指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-29T06:00:00.000Z" title="发表于 2026-05-29 14:00:00">2026-05-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-29T10:00:00.000Z" title="更新于 2026-05-29 18:00:00">2026-05-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/hexo/">Hexo</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/hexo/config/">配置</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>本文汇总 Hexo 博客除「写 Markdown 文章」之外的可定制项，并说明本仓库当前的实际配置，便于后续扩展。</p>
 <hr>
 <h2 id="1-站点基础信息（-config-yml）"><a href="#1-站点基础信息（-config-yml）" class="headerlink" title="1. 站点基础信息（_config.yml）"></a>1. 站点基础信息（<code>_config.yml</code>）</h2><p>根目录 <code>_config.yml</code> 控制全站行为，建议优先配置：</p>
 <table>
@@ -187,7 +188,7 @@
 <tr>
 <td><code>description</code></td>
 <td>SEO 描述</td>
-<td>个人技术博客</td>
+<td>记录服务器部署、Hexo 博客搭建与开发实践</td>
 </tr>
 <tr>
 <td><code>author</code></td>
@@ -210,7 +211,7 @@
 <td><a href="https://csdnzjl.github.io/">https://CSDNzjl.github.io</a></td>
 </tr>
 </tbody></table>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">title:</span> <span class="string">CSDNzjl</span> <span class="string">的技术笔记</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">&#x27;服务器 · 部署 · 开发&#x27;</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">&#x27;个人技术博客&#x27;</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">CSDNzjl</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"><span class="attr">timezone:</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://CSDNzjl.github.io</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">title:</span> <span class="string">CSDNzjl</span> <span class="string">的技术笔记</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">&#x27;服务器 · 部署 · 开发&#x27;</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">&#x27;记录服务器部署、Hexo 博客搭建与开发实践&#x27;</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">Hexo,</span> <span class="string">部署,</span> <span class="string">GitHub</span> <span class="string">Pages,</span> <span class="string">Nginx,</span> <span class="string">Spring</span> <span class="string">Cloud,</span> <span class="string">Butterfly</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"><span class="attr">timezone:</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://CSDNzjl.github.io</span></span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p><code>url</code> 填错会导致 RSS、sitemap、绝对链接全部指向错误域名。</p>
@@ -226,7 +227,7 @@
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![<span class="string">示意图</span>](<span class="link">示意图.png</span>)</span><br></pre></td></tr></table></figure>
 
 <h3 id="2-3-分类与标签-URL-映射"><a href="#2-3-分类与标签-URL-映射" class="headerlink" title="2.3 分类与标签 URL 映射"></a>2.3 分类与标签 URL 映射</h3><p>中文分类可映射为英文路径，更利于 SEO：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">category_map:</span></span><br><span class="line">  <span class="string">部署:</span> <span class="string">deploy</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line">  <span class="attr">Hexo:</span> <span class="string">hexo</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">category_map:</span></span><br><span class="line">  <span class="string">部署:</span> <span class="string">deploy</span></span><br><span class="line">  <span class="attr">Hexo:</span> <span class="string">hexo</span></span><br><span class="line">  <span class="string">配置:</span> <span class="string">config</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line">  <span class="attr">GitHub Pages:</span> <span class="string">github-pages</span></span><br><span class="line">  <span class="attr">Spring Cloud:</span> <span class="string">spring-cloud</span></span><br></pre></td></tr></table></figure>
 
 <hr>
 <h2 id="3-除文章外的页面与数据"><a href="#3-除文章外的页面与数据" class="headerlink" title="3. 除文章外的页面与数据"></a>3. 除文章外的页面与数据</h2><p><code>source/</code> 目录不仅放 <code>_posts/</code>：</p>
@@ -242,6 +243,16 @@
 <td><code>source/about/index.md</code></td>
 <td>关于页</td>
 <td><code>hexo new page about</code></td>
+</tr>
+<tr>
+<td><code>source/categories/index.md</code></td>
+<td>分类总览（Butterfly 需要）</td>
+<td>手动创建，<code>type: categories</code></td>
+</tr>
+<tr>
+<td><code>source/tags/index.md</code></td>
+<td>标签总览（Butterfly 需要）</td>
+<td>手动创建，<code>type: tags</code></td>
 </tr>
 <tr>
 <td><code>source/friends/index.md</code></td>
@@ -283,19 +294,39 @@
 </tr>
 <tr>
 <td><code>menu</code></td>
-<td>首页 &#x2F; 归档 &#x2F; 分类 &#x2F; 标签</td>
+<td>首页 &#x2F; 归档 &#x2F; 分类 &#x2F; 标签 &#x2F; 关于</td>
 </tr>
 <tr>
-<td><code>avatar</code></td>
-<td>侧边栏头像</td>
+<td><code>avatar.img</code></td>
+<td>自定义头像 <code>/images/avatar.png</code></td>
+</tr>
+<tr>
+<td><code>aside.card_*</code></td>
+<td>已关闭分类&#x2F;标签&#x2F;归档&#x2F;最新文章侧边栏</td>
+</tr>
+<tr>
+<td><code>busuanzi</code></td>
+<td>已关闭访客数与浏览量</td>
+</tr>
+<tr>
+<td><code>search.use</code></td>
+<td>本地搜索 <code>local_search</code></td>
 </tr>
 <tr>
 <td><code>code_blocks.theme</code></td>
 <td>代码高亮主题 <code>pale night</code></td>
 </tr>
 <tr>
-<td><code>code_blocks.macStyle</code></td>
-<td>Mac 风格代码块标题栏</td>
+<td><code>code_blocks.height_limit</code></td>
+<td>超长代码块默认折叠（400px）</td>
+</tr>
+<tr>
+<td><code>cover.index_enable</code></td>
+<td>首页卡片不显示封面图</td>
+</tr>
+<tr>
+<td><code>pjax</code> &#x2F; <code>lazyload</code></td>
+<td>已开启页面切换与图片懒加载</td>
 </tr>
 <tr>
 <td><code>toc.post</code></td>
@@ -321,7 +352,7 @@
 <li><code>subtitle</code>：首页打字机效果副标题</li>
 <li><code>inject</code>：自定义 CSS &#x2F; JS</li>
 <li>评论系统（Gitalk、Twikoo、Waline 等）</li>
-<li>搜索（本地搜索 &#x2F; Algolia）</li>
+<li>RSS 订阅（<code>hexo-generator-feed</code>）</li>
 </ul>
 <p>官方文档：<a target="_blank" rel="noopener" href="https://butterfly.js.org/">https://butterfly.js.org/</a></p>
 <hr>
@@ -340,7 +371,16 @@
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">sitemap:</span></span><br><span class="line">  <span class="attr">path:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">sitemap.xml</span></span><br><span class="line">  <span class="attr">rel:</span> <span class="literal">true</span>    <span class="comment"># 在页面 &lt;head&gt; 中插入 sitemap 链接</span></span><br></pre></td></tr></table></figure>
 
 <p>部署后访问：<code>https://CSDNzjl.github.io/sitemap.xml</code></p>
-<h3 id="5-3-其他常用插件（可按需安装）"><a href="#5-3-其他常用插件（可按需安装）" class="headerlink" title="5.3 其他常用插件（可按需安装）"></a>5.3 其他常用插件（可按需安装）</h3><table>
+<p>部署后访问：<code>https://CSDNzjl.github.io/sitemap.xml</code></p>
+<h3 id="5-3-本地搜索（hexo-generator-searchdb）"><a href="#5-3-本地搜索（hexo-generator-searchdb）" class="headerlink" title="5.3 本地搜索（hexo-generator-searchdb）"></a>5.3 本地搜索（hexo-generator-searchdb）</h3><p>已安装 <code>hexo-generator-searchdb</code>，配合 Butterfly 本地搜索使用。</p>
+<p><code>_config.yml</code> 生成搜索数据：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.json</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">content:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">striptags</span></span><br></pre></td></tr></table></figure>
+
+<p><code>_config.butterfly.yml</code> 启用搜索：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">use:</span> <span class="string">local_search</span></span><br><span class="line">  <span class="attr">placeholder:</span> <span class="string">搜索文章...</span></span><br><span class="line">  <span class="attr">local_search:</span></span><br><span class="line">    <span class="attr">preload:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>导航栏会出现搜索图标，点击即可全文检索文章。</p>
+<h3 id="5-4-其他常用插件（可按需安装）"><a href="#5-4-其他常用插件（可按需安装）" class="headerlink" title="5.4 其他常用插件（可按需安装）"></a>5.4 其他常用插件（可按需安装）</h3><table>
 <thead>
 <tr>
 <th>插件</th>
@@ -407,7 +447,7 @@
 <h2 id="9-源码仓库应忽略的文件（-gitignore）"><a href="#9-源码仓库应忽略的文件（-gitignore）" class="headerlink" title="9. 源码仓库应忽略的文件（.gitignore）"></a>9. 源码仓库应忽略的文件（<code>.gitignore</code>）</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">node_modules/</span><br><span class="line">public/          # hexo generate 生成物</span><br><span class="line">.deploy_git/     # hexo deploy 临时目录</span><br><span class="line">db.json          # Hexo 缓存</span><br><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br></pre></td></tr></table></figure>
 
 <hr>
-<h2 id="10-日常发布流程"><a href="#10-日常发布流程" class="headerlink" title="10. 日常发布流程"></a>10. 日常发布流程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 写新文章</span></span><br><span class="line">hexo new <span class="string">&quot;我的文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 本地预览</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 浏览器打开 http://localhost:4000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 生成并检查</span></span><br><span class="line">hexo clean &amp;&amp; hexo generate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 备份源码</span></span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;post: 新文章&quot;</span></span><br><span class="line">git push</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 发布网站</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或合并：hexo clean &amp;&amp; hexo g -d</span></span><br></pre></td></tr></table></figure>
+<h2 id="10-日常发布流程"><a href="#10-日常发布流程" class="headerlink" title="10. 日常发布流程"></a>10. 日常发布流程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 写新文章</span></span><br><span class="line">hexo new <span class="string">&quot;我的文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 本地预览</span></span><br><span class="line">pnpm preview</span><br><span class="line"><span class="comment"># 或 hexo server → http://localhost:4000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 生成静态文件</span></span><br><span class="line">pnpm build</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 备份源码</span></span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;post: 新文章&quot;</span></span><br><span class="line">git push</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 发布网站</span></span><br><span class="line">pnpm deploy</span><br></pre></td></tr></table></figure>
 
 <hr>
 <h2 id="11-配置文件速查"><a href="#11-配置文件速查" class="headerlink" title="11. 配置文件速查"></a>11. 配置文件速查</h2><table>
@@ -430,20 +470,32 @@
 <td>博客文章</td>
 </tr>
 <tr>
-<td><code>source/images/</code></td>
-<td>静态图片</td>
+<td><code>source/about/index.md</code></td>
+<td>关于页</td>
+</tr>
+<tr>
+<td><code>source/categories/index.md</code></td>
+<td>分类总览页</td>
+</tr>
+<tr>
+<td><code>source/tags/index.md</code></td>
+<td>标签总览页</td>
 </tr>
 <tr>
 <td><code>scaffolds/post.md</code></td>
 <td>新建文章模板</td>
 </tr>
 <tr>
+<td><code>source/images/</code></td>
+<td>静态图片</td>
+</tr>
+<tr>
 <td><code>package.json</code></td>
-<td>依赖与 npm 脚本</td>
+<td>依赖与 npm 脚本（<code>build</code> &#x2F; <code>preview</code> &#x2F; <code>deploy</code>）</td>
 </tr>
 </tbody></table>
 <hr>
-<h2 id="12-本仓库已安装依赖一览"><a href="#12-本仓库已安装依赖一览" class="headerlink" title="12. 本仓库已安装依赖一览"></a>12. 本仓库已安装依赖一览</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;hexo-theme-butterfly&quot;</span><span class="punctuation">:</span> <span class="string">&quot;主题&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-deployer-git&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Git 部署&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-sitemap&quot;</span><span class="punctuation">:</span> <span class="string">&quot;站点地图&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-pug&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Butterfly 依赖&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;moment-timezone&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Butterfly 依赖&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="12-本仓库已安装依赖一览"><a href="#12-本仓库已安装依赖一览" class="headerlink" title="12. 本仓库已安装依赖一览"></a>12. 本仓库已安装依赖一览</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;hexo-theme-butterfly&quot;</span><span class="punctuation">:</span> <span class="string">&quot;主题&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-deployer-git&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Git 部署&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-sitemap&quot;</span><span class="punctuation">:</span> <span class="string">&quot;站点地图&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-searchdb&quot;</span><span class="punctuation">:</span> <span class="string">&quot;本地搜索数据&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-pug&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Butterfly 依赖&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;moment-timezone&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Butterfly 依赖&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <hr>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
@@ -452,4 +504,58 @@
 <li><a target="_blank" rel="noopener" href="https://hexo.io/plugins/">Hexo 插件列表</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-generator-sitemap">hexo-generator-sitemap</a></li>
 </ul>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/CSDNzjl">CSDNzjl</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://csdnzjl.github.io/2026/05/29/Hexo%E4%B8%AA%E6%80%A7%E5%8C%96%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">https://csdnzjl.github.io/2026/05/29/Hexo%E4%B8%AA%E6%80%A7%E5%8C%96%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://CSDNzjl.github.io" target="_blank">CSDNzjl 的技术笔记</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Hexo/">Hexo</a><a class="post-meta__tags" href="/tags/Butterfly/">Butterfly</a><a class="post-meta__tags" href="/tags/%E4%B8%BB%E9%A2%98/">主题</a><a class="post-meta__tags" href="/tags/%E6%8F%92%E4%BB%B6/">插件</a><a class="post-meta__tags" href="/tags/%E9%85%8D%E7%BD%AE/">配置</a></div><div class="post-share"><div class="social-share" data-image="/images/avatar.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/05/29/%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" title="虹光项目：服务器部署架构与从零搭建指南"><img class="cover" src="/images/hongguang-logo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">虹光项目：服务器部署架构与从零搭建指南</div></div><div class="info-2"><div class="info-item-1">本文说明当前 hongguang（虹光铸造全生命周期管理系统） 在服务器上如何协同工作，以及若从零搭建一套类似技术栈网站时的完整流程。  说明：访问地址 192.168.201.40:93 中的 93 端口 属于服务器上的 Web 服务器（通常为 Nginx） 配置，不在本仓库源码中；下文根据现有前端打包方式与常见部署实践进行说明。   1. 整体架构一览1234567891011121314151617181920212223┌─────────────┐     :93 (Nginx 静态资源)      ┌──────────────────────────┐│   浏览器     │ ──────────────────────────► │  dist/（Vue 打包后的 HTML/JS） │└──────┬──────┘                               └──────────────────────────┘       │       │  AJAX：VUE_APP_BASE_API（打包时写入）       │  例：http://19...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">CSDNzjl</div><div class="author-info-description">服务器 · 部署 · 开发</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CSDNzjl"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CSDNzjl" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来访 CSDNzjl 的技术笔记</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AB%99%E7%82%B9%E5%9F%BA%E7%A1%80%E4%BF%A1%E6%81%AF%EF%BC%88-config-yml%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">1. 站点基础信息（_config.yml）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%87%E7%AB%A0%E4%B8%8E-URL-%E8%A7%84%E5%88%99"><span class="toc-number">2.</span> <span class="toc-text">2. 文章与 URL 规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%8D%95%E7%AF%87%E6%96%87%E7%AB%A0-Front-Matter"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 单篇文章 Front Matter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%85%A8%E5%B1%80%E5%86%99%E4%BD%9C%E9%85%8D%E7%BD%AE"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 全局写作配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%88%86%E7%B1%BB%E4%B8%8E%E6%A0%87%E7%AD%BE-URL-%E6%98%A0%E5%B0%84"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 分类与标签 URL 映射</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%99%A4%E6%96%87%E7%AB%A0%E5%A4%96%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%B8%8E%E6%95%B0%E6%8D%AE"><span class="toc-number">3.</span> <span class="toc-text">3. 除文章外的页面与数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE%EF%BC%88Butterfly%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4. 主题配置（Butterfly）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%87%E6%8D%A2"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 安装与切换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%9C%AC%E4%BB%93%E5%BA%93%E5%B7%B2%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 本仓库已配置项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE%E6%B3%A8%E6%84%8F"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 代码高亮注意</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%BE%8E%E5%8C%96"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 进一步美化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%8F%92%E4%BB%B6"><span class="toc-number">5.</span> <span class="toc-text">5. 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%96%87%E7%AB%A0%E7%9B%AE%E5%BD%95%EF%BC%88Butterfly-%E4%BE%A7%E8%BE%B9%E6%A0%8F%EF%BC%89"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 文章目录（Butterfly 侧边栏）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%AB%99%E7%82%B9%E5%9C%B0%E5%9B%BE%EF%BC%88hexo-generator-sitemap%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 站点地图（hexo-generator-sitemap）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E5%85%B6%E4%BB%96%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6%EF%BC%88%E5%8F%AF%E6%8C%89%E9%9C%80%E5%AE%89%E8%A3%85%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 其他常用插件（可按需安装）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%84%9A%E6%89%8B%E6%9E%B6%E6%A8%A1%E6%9D%BF%EF%BC%88scaffolds-%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6. 脚手架模板（scaffolds&#x2F;）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%88%86%E9%A1%B5%E4%B8%8E%E9%A6%96%E9%A1%B5"><span class="toc-number">7.</span> <span class="toc-text">7. 分页与首页</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE"><span class="toc-number">8.</span> <span class="toc-text">8. 部署配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E6%BA%90%E7%A0%81%E4%BB%93%E5%BA%93%E5%BA%94%E5%BF%BD%E7%95%A5%E7%9A%84%E6%96%87%E4%BB%B6%EF%BC%88-gitignore%EF%BC%89"><span class="toc-number">9.</span> <span class="toc-text">9. 源码仓库应忽略的文件（.gitignore）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%97%A5%E5%B8%B8%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B"><span class="toc-number">10.</span> <span class="toc-text">10. 日常发布流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E9%80%9F%E6%9F%A5"><span class="toc-number">11.</span> <span class="toc-text">11. 配置文件速查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E6%9C%AC%E4%BB%93%E5%BA%93%E5%B7%B2%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E4%B8%80%E8%A7%88"><span class="toc-number">12.</span> <span class="toc-text">12. 本仓库已安装依赖一览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">13.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By CSDNzjl</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">CSDNzjl 的技术笔记</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div></div></body></html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/CSDNzjl">CSDNzjl</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://csdnzjl.github.io/2026/05/29/Hexo%E4%B8%AA%E6%80%A7%E5%8C%96%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">https://csdnzjl.github.io/2026/05/29/Hexo%E4%B8%AA%E6%80%A7%E5%8C%96%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://CSDNzjl.github.io" target="_blank">CSDNzjl 的技术笔记</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Hexo/">Hexo</a><a class="post-meta__tags" href="/tags/butterfly/">Butterfly</a><a class="post-meta__tags" href="/tags/%E4%B8%BB%E9%A2%98/">主题</a><a class="post-meta__tags" href="/tags/%E6%8F%92%E4%BB%B6/">插件</a><a class="post-meta__tags" href="/tags/%E9%85%8D%E7%BD%AE/">配置</a></div><div class="post-share"><div class="social-share" data-image="/images/avatar.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/05/29/%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" title="虹光项目：服务器部署架构与从零搭建指南"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">虹光项目：服务器部署架构与从零搭建指南</div></div><div class="info-2"><div class="info-item-1">本文说明当前 hongguang（虹光铸造全生命周期管理系统） 在服务器上如何协同工作，以及若从零搭建一套类似技术栈网站时的完整流程。  说明：访问地址 192.168.201.40:93 中的 93 端口 属于服务器上的 Web 服务器（通常为 Nginx） 配置，不在本仓库源码中；下文根据现有前端打包方式与常见部署实践进行说明。   1. 整体架构一览1234567891011121314151617181920212223┌─────────────┐     :93 (Nginx 静态资源)      ┌──────────────────────────┐│   浏览器     │ ──────────────────────────► │  dist/（Vue 打包后的 HTML/JS） │└──────┬──────┘                               └──────────────────────────┘       │       │  AJAX：VUE_APP_BASE_API（打包时写入）       │  例：http://19...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">CSDNzjl</div><div class="author-info-description">服务器 · 部署 · 开发</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CSDNzjl"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CSDNzjl" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS 订阅"><i class="fas fa-rss" style="color: #f26522;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来访 CSDNzjl 的技术笔记</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AB%99%E7%82%B9%E5%9F%BA%E7%A1%80%E4%BF%A1%E6%81%AF%EF%BC%88-config-yml%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">1. 站点基础信息（_config.yml）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%87%E7%AB%A0%E4%B8%8E-URL-%E8%A7%84%E5%88%99"><span class="toc-number">2.</span> <span class="toc-text">2. 文章与 URL 规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%8D%95%E7%AF%87%E6%96%87%E7%AB%A0-Front-Matter"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 单篇文章 Front Matter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%85%A8%E5%B1%80%E5%86%99%E4%BD%9C%E9%85%8D%E7%BD%AE"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 全局写作配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%88%86%E7%B1%BB%E4%B8%8E%E6%A0%87%E7%AD%BE-URL-%E6%98%A0%E5%B0%84"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 分类与标签 URL 映射</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%99%A4%E6%96%87%E7%AB%A0%E5%A4%96%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%B8%8E%E6%95%B0%E6%8D%AE"><span class="toc-number">3.</span> <span class="toc-text">3. 除文章外的页面与数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE%EF%BC%88Butterfly%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4. 主题配置（Butterfly）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%87%E6%8D%A2"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 安装与切换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%9C%AC%E4%BB%93%E5%BA%93%E5%B7%B2%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 本仓库已配置项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE%E6%B3%A8%E6%84%8F"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 代码高亮注意</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%BE%8E%E5%8C%96"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 进一步美化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%8F%92%E4%BB%B6"><span class="toc-number">5.</span> <span class="toc-text">5. 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%96%87%E7%AB%A0%E7%9B%AE%E5%BD%95%EF%BC%88Butterfly-%E4%BE%A7%E8%BE%B9%E6%A0%8F%EF%BC%89"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 文章目录（Butterfly 侧边栏）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%AB%99%E7%82%B9%E5%9C%B0%E5%9B%BE%EF%BC%88hexo-generator-sitemap%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 站点地图（hexo-generator-sitemap）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%9C%AC%E5%9C%B0%E6%90%9C%E7%B4%A2%EF%BC%88hexo-generator-searchdb%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 本地搜索（hexo-generator-searchdb）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E5%85%B6%E4%BB%96%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6%EF%BC%88%E5%8F%AF%E6%8C%89%E9%9C%80%E5%AE%89%E8%A3%85%EF%BC%89"><span class="toc-number">5.4.</span> <span class="toc-text">5.4 其他常用插件（可按需安装）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%84%9A%E6%89%8B%E6%9E%B6%E6%A8%A1%E6%9D%BF%EF%BC%88scaffolds-%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6. 脚手架模板（scaffolds&#x2F;）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%88%86%E9%A1%B5%E4%B8%8E%E9%A6%96%E9%A1%B5"><span class="toc-number">7.</span> <span class="toc-text">7. 分页与首页</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE"><span class="toc-number">8.</span> <span class="toc-text">8. 部署配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E6%BA%90%E7%A0%81%E4%BB%93%E5%BA%93%E5%BA%94%E5%BF%BD%E7%95%A5%E7%9A%84%E6%96%87%E4%BB%B6%EF%BC%88-gitignore%EF%BC%89"><span class="toc-number">9.</span> <span class="toc-text">9. 源码仓库应忽略的文件（.gitignore）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%97%A5%E5%B8%B8%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B"><span class="toc-number">10.</span> <span class="toc-text">10. 日常发布流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E9%80%9F%E6%9F%A5"><span class="toc-number">11.</span> <span class="toc-text">11. 配置文件速查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E6%9C%AC%E4%BB%93%E5%BA%93%E5%B7%B2%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E4%B8%80%E8%A7%88"><span class="toc-number">12.</span> <span class="toc-text">12. 本仓库已安装依赖一览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">13.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By CSDNzjl</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">CSDNzjl 的技术笔记</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

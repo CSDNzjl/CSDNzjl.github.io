@@ -1,0 +1,881 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>虹光项目：goFastDFS + kkFileView 文件预览链路与问题排查 | CSDNzjl 的技术笔记</title><meta name="author" content="CSDNzjl"><meta name="copyright" content="CSDNzjl"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文整理 hongguang（虹光铸造全生命周期管理系统） 中附件上传、在线预览、下载的完整数据流，以及局域网 &#x2F; 公网双入口下 PDF 灰屏等问题的排查与配置方案。涉及前端附件组件、hongguang-parameter、goFastDFS、kkFileView、Nginx。  适用读者：实施、运维、全栈开发。前置知识：了解项目基本架构（Nginx + Gateway + Nacos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虹光项目：goFastDFS + kkFileView 文件预览链路与问题排查">
+<meta property="og:url" content="https://csdnzjl.github.io/2026/08/05/Kocel-goFastDFS%E4%B8%8EkkFileView%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5/index.html">
+<meta property="og:site_name" content="CSDNzjl 的技术笔记">
+<meta property="og:description" content="本文整理 hongguang（虹光铸造全生命周期管理系统） 中附件上传、在线预览、下载的完整数据流，以及局域网 &#x2F; 公网双入口下 PDF 灰屏等问题的排查与配置方案。涉及前端附件组件、hongguang-parameter、goFastDFS、kkFileView、Nginx。  适用读者：实施、运维、全栈开发。前置知识：了解项目基本架构（Nginx + Gateway + Nacos">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csdnzjl.github.io/images/hongguang-logo.png">
+<meta property="article:published_time" content="2026-08-05T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-05T08:00:00.000Z">
+<meta property="article:author" content="CSDNzjl">
+<meta property="article:tag" content="Kocel">
+<meta property="article:tag" content="Nginx">
+<meta property="article:tag" content="goFastDFS">
+<meta property="article:tag" content="kkFileView">
+<meta property="article:tag" content="文件预览">
+<meta property="article:tag" content="虹光">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://csdnzjl.github.io/images/hongguang-logo.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "虹光项目：goFastDFS + kkFileView 文件预览链路与问题排查",
+  "url": "https://csdnzjl.github.io/2026/08/05/Kocel-goFastDFS%E4%B8%8EkkFileView%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5/",
+  "image": "https://csdnzjl.github.io/images/hongguang-logo.png",
+  "datePublished": "2026-08-05T08:00:00.000Z",
+  "dateModified": "2026-08-05T08:00:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "CSDNzjl",
+      "url": "https://github.com/CSDNzjl"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://csdnzjl.github.io/2026/08/05/Kocel-goFastDFS%E4%B8%8EkkFileView%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":2,"unescape":false,"pagination":{"enable":true,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":400,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '虹光项目：goFastDFS + kkFileView 文件预览链路与问题排查',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="CSDNzjl 的技术笔记" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/images/hongguang-logo.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">CSDNzjl 的技术笔记</span></a><a class="nav-page-title" href="/"><span class="site-name">虹光项目：goFastDFS + kkFileView 文件预览链路与问题排查</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">虹光项目：goFastDFS + kkFileView 文件预览链路与问题排查</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-05T08:00:00.000Z" title="发表于 2026-08-05 16:00:00">2026-08-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-05T08:00:00.000Z" title="更新于 2026-08-05 16:00:00">2026-08-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Kocel/">Kocel</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>本文整理 <strong>hongguang（虹光铸造全生命周期管理系统）</strong> 中附件上传、在线预览、下载的完整数据流，以及局域网 &#x2F; 公网双入口下 PDF 灰屏等问题的排查与配置方案。涉及前端附件组件、<code>hongguang-parameter</code>、goFastDFS、kkFileView、Nginx。</p>
+<blockquote>
+<p><strong>适用读者</strong>：实施、运维、全栈开发。<br><strong>前置知识</strong>：了解项目基本架构（Nginx + Gateway + Nacos + 微服务），可参考 <a href="/2026/05/29/%E8%99%B9%E5%85%89%E9%A1%B9%E7%9B%AE%EF%BC%9A%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E4%B8%8E%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/">虹光项目：服务器部署架构与从零搭建指南</a>、<a href="/2026/06/16/kkFileView%E6%96%87%E4%BB%B6%E5%9C%A8%E7%BA%BF%E9%A2%84%E8%A7%88%E6%9C%8D%E5%8A%A1%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/">kkFileView 文件在线预览服务入门指南</a>。<br><strong>环境</strong>：局域网 <code>192.168.2.206</code>，公网 <code>221.193.232.137:8001</code>。</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#1-%E7%BB%84%E4%BB%B6%E8%81%8C%E8%B4%A3%E4%B8%80%E8%A7%88">组件职责一览</a></li>
+<li><a href="#2-%E6%95%B0%E6%8D%AE%E6%B5%81%E9%80%9A%E9%93%BE%E8%B7%AF%E6%8C%89%E8%B7%AF%E5%BE%84">数据流通链路（按路径）</a></li>
+<li><a href="#3-%E5%90%84%E6%A0%BC%E5%BC%8F%E9%A2%84%E8%A7%88%E5%88%86%E5%88%AB%E8%A6%81%E4%BB%80%E4%B9%88">各格式预览分别要什么</a></li>
+<li><a href="#4-%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">遇到的问题与解决方案</a></li>
+<li><a href="#5-%E9%85%8D%E7%BD%AE%E4%B8%8E-nginx-%E5%8F%82%E8%80%83%E7%89%87%E6%AE%B5">配置与 Nginx 参考片段</a></li>
+<li><a href="#6-%E9%AA%8C%E8%AF%81%E6%B8%85%E5%8D%95">验证清单</a></li>
+<li><a href="#7-%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE%E4%BE%BF%E4%BA%8E%E5%AF%B9%E7%85%A7">相关代码位置</a></li>
+<li><a href="#8-%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93">一句话总结</a></li>
+</ol>
+<hr>
+<h2 id="1-组件职责一览"><a href="#1-组件职责一览" class="headerlink" title="1. 组件职责一览"></a>1. 组件职责一览</h2><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+<th>典型地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>前端 <code>FileUpload</code></td>
+<td>上传、持有未保存元数据、发起预览&#x2F;下载</td>
+<td>业务站点</td>
+</tr>
+<tr>
+<td><code>hongguang-parameter</code></td>
+<td>上传转发、拼预览 URL、代下载</td>
+<td><code>/hongguang-parameter/file/*</code></td>
+</tr>
+<tr>
+<td>goFastDFS</td>
+<td>文件二进制存储</td>
+<td><code>http://192.168.2.206:8080</code>（内网）</td>
+</tr>
+<tr>
+<td>kkFileView</td>
+<td>在线预览（TXT 直渲 &#x2F; PDF·Office 转图等）</td>
+<td>内网 <code>8012</code>，对外经 <code>/FileServer/</code></td>
+</tr>
+<tr>
+<td>Nginx</td>
+<td>反代前端、API、<code>/group1/</code>、<code>/FileServer/</code></td>
+<td>局域网 <code>:80</code>、公网 <code>:8001</code></td>
+</tr>
+</tbody></table>
+<h3 id="关键配置"><a href="#关键配置" class="headerlink" title="关键配置"></a>关键配置</h3><table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>位置</th>
+<th>作用</th>
+<th>推荐值（双入口）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>spring.fastdfs-host</code></td>
+<td>Nacos</td>
+<td>后端&#x2F;kkFileView <strong>服务端</strong>访问 goFastDFS 的根地址</td>
+<td><code>http://192.168.2.206:8080</code>（保持内网）</td>
+</tr>
+<tr>
+<td><code>base.url</code></td>
+<td>kkFileView <code>application.properties</code></td>
+<td>拼预览页内资源（如 <code>0.jpg</code>）的对外根路径</td>
+<td><code>/FileServer</code>（相对路径）</td>
+</tr>
+<tr>
+<td><code>previewPage</code> &#x2F; <code>previewDecodePage</code></td>
+<td>系统默认参数</td>
+<td>预览入口页</td>
+<td><code>/FileServer/onlinePreview</code></td>
+</tr>
+<tr>
+<td>Nginx <code>/group1/</code></td>
+<td>Nginx</td>
+<td>浏览器侧访问存储文件</td>
+<td>反代到 <code>192.168.2.206:8080/group1/</code></td>
+</tr>
+<tr>
+<td>Nginx <code>/FileServer/</code></td>
+<td>Nginx</td>
+<td>浏览器侧访问预览服务</td>
+<td>反代到 <code>127.0.0.1:8012/</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-数据流通链路（按路径）"><a href="#2-数据流通链路（按路径）" class="headerlink" title="2. 数据流通链路（按路径）"></a>2. 数据流通链路（按路径）</h2><h3 id="2-1-总览时序"><a href="#2-1-总览时序" class="headerlink" title="2.1 总览时序"></a>2.1 总览时序</h3><pre><code class="highlight mermaid">sequenceDiagram
+  participant Browser as 浏览器
+  participant Nginx as Nginx
+  participant Param as hongguang-parameter
+  participant DFS as goFastDFS:8080
+  participant KK as kkFileView:8012
+  participant DB as 业务库
+
+  Note over Browser,DFS: ① 上传（二进制已落盘）
+  Browser-&gt;&gt;Nginx: POST 业务上传 API
+  Nginx-&gt;&gt;Param: /file/upload
+  Param-&gt;&gt;DFS: POST /group1/upload
+  DFS--&gt;&gt;Param: path / md5
+  Param--&gt;&gt;Browser: UploadResult&#123;path,url,name,code,secretKey&#125;
+  Note over Browser: 写入内存 fileList，尚未业务保存
+
+  Note over Browser,KK: ② 预览（未保存也可）
+  Browser-&gt;&gt;Param: GET /file/preview?path&amp;fileName&amp;secretKey
+  Param--&gt;&gt;Browser: /FileServer/onlinePreview?url=Base64(fastdfsHost+path)
+  Browser-&gt;&gt;Nginx: GET /FileServer/onlinePreview?...
+  Nginx-&gt;&gt;KK: proxy → :8012
+  KK-&gt;&gt;DFS: 服务端拉取源文件
+  KK--&gt;&gt;Browser: 预览页 + /FileServer/&#123;id&#125;/0.jpg 等
+
+  Note over Browser,DFS: ③ 下载（未保存也可）
+  Browser-&gt;&gt;Param: GET /file/download?path&amp;fileName&amp;secretKey
+  Param-&gt;&gt;DFS: 按 path 拉取（加密则先解密）
+  Param--&gt;&gt;Browser: 文件流
+
+  Note over Browser,DB: ④ 业务保存（只存元数据）
+  Browser-&gt;&gt;Param: 业务保存 API
+  Param-&gt;&gt;DB: filePath / fileUrl / secretKey / fileName ...</code></pre>
+
+<h3 id="2-2-上传路径流转"><a href="#2-2-上传路径流转" class="headerlink" title="2.2 上传路径流转"></a>2.2 上传路径流转</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">浏览器</span><br><span class="line">  → POST &#123;网关&#125;/hongguang-parameter/file/upload</span><br><span class="line">       (multipart, isSecret, scene 可选)</span><br><span class="line">  → FileServiceImpl</span><br><span class="line">       ├─ isSecret=true：本地加密，生成 secretKey</span><br><span class="line">       └─ HTTP POST &#123;fastdfs-host&#125;/group1/upload</span><br><span class="line">            scene=default|temp|large, output=json</span><br><span class="line">  → goFastDFS 落盘</span><br><span class="line">  → 返回 UploadResult：</span><br><span class="line">       path = /group1/default/yyyyMMdd/.../xxx.ext</span><br><span class="line">       url  = fastdfs-host + path</span><br><span class="line">       name / code(md5) / secretKey?</span><br><span class="line">  → 前端映射进 fileList：</span><br><span class="line">       filePath←path, fileUrl←url, fileName←name,</span><br><span class="line">       fileCode←code, secretKey←secretKey</span><br></pre></td></tr></table></figure>
+
+<p><strong>要点：</strong> 上传成功即表示文件已在 goFastDFS；业务「保存」前不写附件业务表，预览&#x2F;下载靠前端内存中的 <code>path</code> &#x2F; <code>secretKey</code> &#x2F; <code>fileName</code>。</p>
+<h3 id="2-3-预览路径流转（未保存-已保存共用拼-URL-方式）"><a href="#2-3-预览路径流转（未保存-已保存共用拼-URL-方式）" class="headerlink" title="2.3 预览路径流转（未保存 &#x2F; 已保存共用拼 URL 方式）"></a>2.3 预览路径流转（未保存 &#x2F; 已保存共用拼 URL 方式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">浏览器（内存或库中的 path）</span><br><span class="line">  → GET /hongguang-parameter/file/preview</span><br><span class="line">       ?path=&amp;fileName=&amp;secretKey=</span><br><span class="line">  → FileUploadUtils.preview：</span><br><span class="line">       1) realUrl = fastdfs-host + path</span><br><span class="line">          例：http://192.168.2.206:8080/group1/default/.../a.pdf</span><br><span class="line">       2) encodeUrl = Base64.urlSafe(realUrl)</span><br><span class="line">       3) 读系统参数 previewPage（相对化后默认 /FileServer/onlinePreview）</span><br><span class="line">       4) 返回：</span><br><span class="line">          /FileServer/onlinePreview?url=&#123;encodeUrl&#125;&amp;watermarkTxt=...</span><br><span class="line">          （加密文件另带 key、filename，走 previewDecodePage）</span><br><span class="line">  → 浏览器 window.open(相对预览地址)</span><br><span class="line">  → Nginx：/FileServer/ → 127.0.0.1:8012/</span><br><span class="line">  → kkFileView：</span><br><span class="line">       解码 url → 服务端向 goFastDFS 拉文件</span><br><span class="line">       ├─ TXT：文本渲染</span><br><span class="line">       ├─ PDF（本环境）：转页图 → &#123;id&#125;/0.jpg, 1.jpg...</span><br><span class="line">       └─ Word：依赖 LibreOffice 转 PDF/图后再预览</span><br><span class="line">  → 页面内资源地址 = base.url + /&#123;id&#125;/0.jpg</span><br><span class="line">       当 base.url=/FileServer 时：</span><br><span class="line">       局域网 → http://192.168.2.206/FileServer/&#123;id&#125;/0.jpg</span><br><span class="line">       公网   → http://221.193.232.137:8001/FileServer/&#123;id&#125;/0.jpg</span><br></pre></td></tr></table></figure>
+
+<p><strong>Base64 说明：</strong> 编码的是「完整可下载 HTTP URL」，不是单独 path；Base64 仅为安全塞入查询参数，不是加密。kkFileView 必须能访问解码后的地址。</p>
+<h3 id="2-4-下载路径流转"><a href="#2-4-下载路径流转" class="headerlink" title="2.4 下载路径流转"></a>2.4 下载路径流转</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">浏览器</span><br><span class="line">  → GET &#123;API&#125;/hongguang-parameter/file/download</span><br><span class="line">       ?fileName=&amp;path=&amp;secretKey=</span><br><span class="line">  → FileUploadUtils.download：</span><br><span class="line">       url = fastdfs-host + path</span><br><span class="line">       ├─ 非加密：HttpUtil.download(url) → response</span><br><span class="line">       └─ 加密：SecureUtils.decodeUrl 后写流</span><br><span class="line">  → 浏览器收到附件流</span><br></pre></td></tr></table></figure>
+
+<p>不依赖业务表；有 <code>path</code>（及可选 <code>secretKey</code>）即可。已保存后也可按 <code>fileId</code> 走产品附件下载接口（先查库再同样拉 DFS）。</p>
+<h3 id="2-5-业务保存路径流转"><a href="#2-5-业务保存路径流转" class="headerlink" title="2.5 业务保存路径流转"></a>2.5 业务保存路径流转</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">前端 fileList（已含 path/url/secretKey/...）</span><br><span class="line">  → 业务保存 API</span><br><span class="line">  → 仅持久化元数据到业务表</span><br><span class="line">       （如 VcsProductFileDetail：filePath/fileUrl/secretKey/fileName/fileCode）</span><br><span class="line">  → 不重新上传、不移动 goFastDFS 对象</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>二进制</th>
+<th>元数据</th>
+<th>预览&#x2F;下载依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>上传成功、未保存</td>
+<td>已在 goFastDFS</td>
+<td>仅前端 <code>fileList</code></td>
+<td>内存中的 path&#x2F;key</td>
+</tr>
+<tr>
+<td>业务已保存</td>
+<td>同一对象</td>
+<td>业务表</td>
+<td>库中 path&#x2F;key 或 fileId</td>
+</tr>
+</tbody></table>
+<h3 id="2-6-Nginx-路径映射（局域网-80-公网-8001）"><a href="#2-6-Nginx-路径映射（局域网-80-公网-8001）" class="headerlink" title="2.6 Nginx 路径映射（局域网 :80 &#x2F; 公网 :8001）"></a>2.6 Nginx 路径映射（局域网 :80 &#x2F; 公网 :8001）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">浏览器请求                         Nginx 转发</span><br><span class="line">─────────────────────────────────────────────────────────</span><br><span class="line">/                         → 前端静态 dist（SPA）</span><br><span class="line">/api/                     → 后端网关/API（如 :3000）</span><br><span class="line">/group1/**                → http://192.168.2.206:8080/group1/</span><br><span class="line">/FileServer/**            → http://127.0.0.1:8012/   （注意去掉 /FileServer 前缀）</span><br><span class="line">/hongguang-parameter/**   → 经网关到 parameter 服务（以实际网关配置为准）</span><br></pre></td></tr></table></figure>
+
+<p>公网入口 <code>http://221.193.232.137:8001/</code> 转发到 2.206 时，须保证实际命中的 server 块同样具备 <code>/group1/</code>、<code>/FileServer/</code>，且浏览器地址栏的 host:port 与反代入口一致（避免「浏览器以为是 8001、实际打到 80」导致 Host&#x2F;链接错乱）。</p>
+<hr>
+<h2 id="3-各格式预览分别要什么"><a href="#3-各格式预览分别要什么" class="headerlink" title="3. 各格式预览分别要什么"></a>3. 各格式预览分别要什么</h2><table>
+<thead>
+<tr>
+<th>格式</th>
+<th>kkFileView 行为</th>
+<th>额外依赖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TXT</td>
+<td>服务端读文本直接渲染</td>
+<td>注意编码（建议 UTF-8）</td>
+</tr>
+<tr>
+<td>PDF</td>
+<td>本环境多为转 <code>0.jpg</code> 分页图（不一定走 pdf.js）</td>
+<td>转换与 <code>file.dir</code> 写权限；<strong>不依赖</strong> LibreOffice</td>
+</tr>
+<tr>
+<td>Word（doc&#x2F;docx）</td>
+<td>先转 PDF&#x2F;图再预览</td>
+<td>LibreOffice + <code>office.home</code> + 中文字体</td>
+</tr>
+</tbody></table>
+<p>业务侧一般<strong>不必</strong>按后缀各写一套预览 API；统一 <code>/file/preview</code> + Base64 URL，靠扩展名分流。</p>
+<p>kkFileView 会本地缓存转换结果（<code>file.dir</code>），默认定时清理；权威文件始终在 goFastDFS，kkFileView 不是主存储。</p>
+<hr>
+<h2 id="4-遇到的问题与解决方案"><a href="#4-遇到的问题与解决方案" class="headerlink" title="4. 遇到的问题与解决方案"></a>4. 遇到的问题与解决方案</h2><h3 id="问题-A：TXT-可预览，PDF-页面灰屏-空白，但源文件可下载"><a href="#问题-A：TXT-可预览，PDF-页面灰屏-空白，但源文件可下载" class="headerlink" title="问题 A：TXT 可预览，PDF 页面灰屏 &#x2F; 空白，但源文件可下载"></a>问题 A：TXT 可预览，PDF 页面灰屏 &#x2F; 空白，但源文件可下载</h3><p><strong>现象</strong></p>
+<ul>
+<li>打开 <code>/FileServer/onlinePreview?url=Base64(...)</code>，识别为 PDF（出现 <code>pdf.svg</code>），内容空白。</li>
+<li>Base64 解码后的 goFastDFS 地址可正常下载。</li>
+<li>服务端已生成正确的 <code>0.jpg</code>（磁盘上打开正常）。</li>
+</ul>
+<p><strong>排查误区</strong></p>
+<ul>
+<li>「Network 里没有 <code>pdf.js</code>」<strong>不能</strong>当作故障依据。很多部署使用<strong>图片预览模式</strong>，只会请求 <code>0.jpg</code>、<code>1.jpg</code>，不会加载 <code>pdf.js</code>。</li>
+</ul>
+<p><strong>根因</strong></p>
+<ul>
+<li>kkFileView 经 Nginx 挂在 <code>/FileServer/</code> 下，但 <code>base.url</code> 未带此前缀（或写死错误绝对地址）。</li>
+<li>页面内图片请求变成：</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.2.206/&#123;id&#125;/0.jpg          ← 错误（缺 /FileServer，落到 80 根路径）</span><br></pre></td></tr></table></figure>
+
+<p>而预览页本身是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.2.206/FileServer/onlinePreview?...</span><br></pre></td></tr></table></figure>
+
+<p>磁盘有图 ≠ 浏览器请求的 URL 能打到 kkFileView。</p>
+<p><strong>解决方案</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># kkFileView application.properties</span></span><br><span class="line"><span class="attr">base.url</span> = <span class="string">/FileServer</span></span><br></pre></td></tr></table></figure>
+
+<p>重启后图片应变为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://&#123;当前访问Host&#125;/FileServer/&#123;id&#125;/0.jpg</span><br></pre></td></tr></table></figure>
+
+<p><strong>为何可行</strong></p>
+<ul>
+<li><code>/FileServer/</code> 已由 Nginx 反代到 <code>:8012</code>，相对 <code>base.url</code> 让浏览器始终用「当前站点 + &#x2F;FileServer」取图。</li>
+<li>转换链路（拉 PDF → 生成 <code>0.jpg</code>）本身是通的，只需修正<strong>浏览器侧资源前缀</strong>。</li>
+</ul>
+<hr>
+<h3 id="问题-B：局域网预览正常，公网同时要上传-下载-预览"><a href="#问题-B：局域网预览正常，公网同时要上传-下载-预览" class="headerlink" title="问题 B：局域网预览正常，公网同时要上传 &#x2F; 下载 &#x2F; 预览"></a>问题 B：局域网预览正常，公网同时要上传 &#x2F; 下载 &#x2F; 预览</h3><p><strong>现象 &#x2F; 风险</strong></p>
+<ul>
+<li>局域网：<code>base.url = http://192.168.2.206/FileServer</code> 可用。</li>
+<li>公网：<code>http://221.193.232.137:8001/</code> → 2.206；若 <code>base.url</code> 写死局域网 IP，公网用户加载 <code>0.jpg</code> 失败。</li>
+<li>若把 <code>fastdfs-host</code> 改成公网，后端&#x2F;kkFileView 服务端取文件可能失败或不稳定。</li>
+</ul>
+<p><strong>解决方案（推荐组合）</strong></p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nacos <code>fastdfs-host</code></td>
+<td><strong>保持</strong> <code>http://192.168.2.206:8080</code>（仅服务端访问）</td>
+</tr>
+<tr>
+<td>kkFileView <code>base.url</code></td>
+<td><strong><code>/FileServer</code></strong>（相对路径，随访问入口变化）</td>
+</tr>
+<tr>
+<td>系统预览参数</td>
+<td><code>/FileServer/onlinePreview</code>（相对路径）</td>
+</tr>
+<tr>
+<td>Nginx</td>
+<td>局域网与公网入口均反代 <code>/group1/</code>、<code>/FileServer/</code></td>
+</tr>
+<tr>
+<td>前端</td>
+<td>优先 <code>/file/preview</code>、<code>/file/download</code>；避免公网用户直接打开 <code>http://192.168.2.206:8080/group1/...</code> 绝对直链</td>
+</tr>
+</tbody></table>
+<p><strong>为何可行（职责分离）</strong></p>
+<table>
+<thead>
+<tr>
+<th>谁访问</th>
+<th>用什么地址</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java &#x2F; kkFileView 拉源文件</td>
+<td>内网 <code>fastdfs-host:8080</code></td>
+<td>同机房稳定、不依赖公网回环</td>
+</tr>
+<tr>
+<td>用户浏览器打开预览页与 <code>0.jpg</code></td>
+<td>当前域名下的 <code>/FileServer/...</code></td>
+<td>局域网、公网各自解析到可通的入口</td>
+</tr>
+<tr>
+<td>用户经 API 下载</td>
+<td>业务下载接口 → 后端再访内网 DFS</td>
+<td>浏览器不直连 <code>:8080</code></td>
+</tr>
+</tbody></table>
+<p>相对 <code>base.url</code> 已在 2.206 环境验证可用，是双入口并存的关键。</p>
+<hr>
+<h3 id="问题-C：未点业务「保存」时，预览-下载从哪来？"><a href="#问题-C：未点业务「保存」时，预览-下载从哪来？" class="headerlink" title="问题 C：未点业务「保存」时，预览&#x2F;下载从哪来？"></a>问题 C：未点业务「保存」时，预览&#x2F;下载从哪来？</h3><p><strong>结论：</strong> 不查业务库。上传响应里的 <code>path</code> &#x2F; <code>secretKey</code> &#x2F; <code>fileName</code> 留在前端 <code>fileList</code>，预览拼 kkFileView URL，下载带 path 调 parameter 代拉。保存只落元数据。</p>
+<hr>
+<h2 id="5-配置与-Nginx-参考片段"><a href="#5-配置与-Nginx-参考片段" class="headerlink" title="5. 配置与 Nginx 参考片段"></a>5. 配置与 Nginx 参考片段</h2><h3 id="5-1-kkFileView"><a href="#5-1-kkFileView" class="headerlink" title="5.1 kkFileView"></a>5.1 kkFileView</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 提供预览服务的地址；Nginx 反代时建议用相对路径，兼顾局域网与公网</span></span><br><span class="line"><span class="attr">base.url</span> = <span class="string">/FileServer</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-Nacos"><a href="#5-2-Nacos" class="headerlink" title="5.2 Nacos"></a>5.2 Nacos</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">fastdfs-host:</span> <span class="string">http://192.168.2.206:8080</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-Nginx（两入口均需具备）"><a href="#5-3-Nginx（两入口均需具备）" class="headerlink" title="5.3 Nginx（两入口均需具备）"></a>5.3 Nginx（两入口均需具备）</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">location</span> /group1/ &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://192.168.2.206:8080/group1/;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">location</span> /FileServer/ &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://127.0.0.1:8012/;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Host <span class="variable">$http_host</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-Host <span class="variable">$http_host</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-Proto <span class="variable">$scheme</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span><br><span class="line">    <span class="attribute">proxy_read_timeout</span> <span class="number">600s</span>;</span><br><span class="line">    <span class="attribute">client_max_body_size</span> <span class="number">300m</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-验证清单"><a href="#6-验证清单" class="headerlink" title="6. 验证清单"></a>6. 验证清单</h2><ol>
+<li><strong>局域网</strong>打开站点 → 上传 TXT&#x2F;PDF → 未保存即可预览、下载 → 保存后再打开仍正常。  </li>
+<li><strong>公网</strong> <code>http://221.193.232.137:8001/</code> 重复上述步骤。  </li>
+<li>预览 PDF 时 Network 中 <code>0.jpg</code> 应为：  <ul>
+<li>局域网：<code>http://192.168.2.206/FileServer/{id}/0.jpg</code>  </li>
+<li>公网：<code>http://221.193.232.137:8001/FileServer/{id}/0.jpg</code><br>且 Status &#x3D; 200，Preview 可见内容。</li>
+</ul>
+</li>
+<li>手动打开 Base64 解码后的 <code>fastdfs-host + path</code>，确认源文件可下载（验证存储与内网连通）。  </li>
+<li>Word 预览单独验证 LibreOffice &#x2F; 字体（与本次 PDF 灰屏根因不同）。</li>
+</ol>
+<hr>
+<h2 id="7-相关代码位置（便于对照）"><a href="#7-相关代码位置（便于对照）" class="headerlink" title="7. 相关代码位置（便于对照）"></a>7. 相关代码位置（便于对照）</h2><table>
+<thead>
+<tr>
+<th>说明</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>上传实现</td>
+<td><code>hongguang-parameter/.../FileServiceImpl.java</code></td>
+</tr>
+<tr>
+<td>预览&#x2F;下载工具</td>
+<td><code>hongguang-common/.../FileUploadUtils.java</code></td>
+</tr>
+<tr>
+<td>文件 API</td>
+<td><code>hongguang-parameter/.../FileController.java</code></td>
+</tr>
+<tr>
+<td>前端上传&#x2F;预览&#x2F;下载示例</td>
+<td><code>hongguang-web/src/views/form/shaping/components/FileUpload.vue</code></td>
+</tr>
+<tr>
+<td>预览 API 封装</td>
+<td><code>hongguang-web/src/api/form/productIn.js</code>（<code>previewFileFun1</code>）</td>
+</tr>
+<tr>
+<td>系统预览参数 UI</td>
+<td><code>hongguang-web/src/views/setup/systemDefaultParameters/Form.vue</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-一句话总结"><a href="#8-一句话总结" class="headerlink" title="8. 一句话总结"></a>8. 一句话总结</h2><p><strong>上传把文件交给 goFastDFS；预览由后端把「内网完整文件 URL」Base64 后交给 kkFileView，kkFileView 服务端拉文件并转换；浏览器只通过当前站点的 <code>/FileServer</code> 看结果。<code>fastdfs-host</code> 服务内网存储访问，<code>base.url=/FileServer</code> 解决反代前缀与公网&#x2F;局域网双入口展示问题；业务保存只持久化 path 等元数据。</strong></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/CSDNzjl">CSDNzjl</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://csdnzjl.github.io/2026/08/05/Kocel-goFastDFS%E4%B8%8EkkFileView%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5/">https://csdnzjl.github.io/2026/08/05/Kocel-goFastDFS%E4%B8%8EkkFileView%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://CSDNzjl.github.io" target="_blank">CSDNzjl 的技术笔记</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Kocel/">Kocel</a><a class="post-meta__tags" href="/tags/%E8%99%B9%E5%85%89/">虹光</a><a class="post-meta__tags" href="/tags/goFastDFS/">goFastDFS</a><a class="post-meta__tags" href="/tags/kkFileView/">kkFileView</a><a class="post-meta__tags" href="/tags/Nginx/">Nginx</a><a class="post-meta__tags" href="/tags/%E6%96%87%E4%BB%B6%E9%A2%84%E8%A7%88/">文件预览</a></div><div class="post-share"><div class="social-share" data-image="/images/hongguang-logo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/06/22/Kocel-Flyway%E6%95%B0%E6%8D%AE%E5%BA%93%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E6%8C%87%E5%8D%97/" title="虹光项目：Flyway 数据库版本管理指南"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">虹光项目：Flyway 数据库版本管理指南</div></div><div class="info-2"><div class="info-item-1">本文整合 Flyway 通用入门知识、hongguang（虹光铸造全生命周期管理系统） 落地配置，以及排产模块（hongguang-scheduling）试点过程中踩过的坑，用于指导全模块数据库变更的统一管理。  适用读者：后端开发、DBA、实施与运维同事。前置知识：了解虹光微服务架构与 Nacos 配置方式，可参考 虹光项目：服务器部署架构与从零搭建指南。   目录 Flyway 是什么 虹光项目现状与目标 技术栈与依赖说明 完整配置流程（新模块接入） SQL 脚本命名规范 执行逻辑与历史表机制 已有数据库接入（Baseline） 虹光项目踩坑记录（必读） 绝对禁止的操作 配置模板速查   1. Flyway 是什么Flyway 是一个开源的数据库版本控制工具（Database Versioning Tool）。    维度 说明    核心作用 管理数据库结构变更（Schema Migration），确保开发、测试、生产环境结构一致   工作原理 扫描 db/migration/ 下的 SQL 脚本，对比历史表中的执行记录，按版本顺序执行未运行的脚本   最大优势 自动化增量...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/29/Kocel-%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" title="虹光项目：服务器部署架构与从零搭建指南"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-29</div><div class="info-item-2">虹光项目：服务器部署架构与从零搭建指南</div></div><div class="info-2"><div class="info-item-1">本文说明当前 hongguang（虹光铸造全生命周期管理系统） 在服务器上如何协同工作，以及若从零搭建一套类似技术栈网站时的完整流程。  说明：访问地址 192.168.201.40:93 中的 93 端口 属于服务器上的 Web 服务器（通常为 Nginx） 配置，不在本仓库源码中；下文根据现有前端打包方式与常见部署实践进行说明。   1. 整体架构一览1234567891011121314151617181920212223┌─────────────┐     :93 (Nginx 静态资源)      ┌──────────────────────────┐│   浏览器     │ ──────────────────────────► │  dist/（Vue 打包后的 HTML/JS） │└──────┬──────┘                               └──────────────────────────┘       │       │  AJAX：VUE_APP_BASE_API（打包时写入）       │  例：http://19...</div></div></div></a><a class="pagination-related" href="/2026/06/05/Kocel-%E8%99%B9%E5%85%89%E5%BC%80%E6%94%BE%E5%85%AC%E7%BD%91IP%E5%85%A8%E6%B5%81%E7%A8%8B/" title="虹光项目：开放公网 IP 访问全流程"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-05</div><div class="info-item-2">虹光项目：开放公网 IP 访问全流程</div></div><div class="info-2"><div class="info-item-1">本文记录在 hongguang（虹光铸造全生命周期管理系统） 测试环境中，将内网服务通过公网 IP 对外开放的完整流程，包括 License 配置、Nginx 反向代理、前端打包改造，以及公网访问时常见的跨域 &#x2F; 私有网络拦截问题排查。  适用读者：实施、运维、全栈开发。前置知识：了解项目基本架构（Nginx + Gateway + Nacos + 微服务），可参考 虹光项目：服务器部署架构与从零搭建指南。   1. 环境背景1.1 局域网（测试服务器）   组件 地址 说明    前端 Nginx 192.168.2.206:80 静态资源 dist/，内网用户日常访问   公网映射 Nginx 192.168.2.206:8001 与 80 端口逻辑相同，供公网入口转发   API 网关 192.168.2.206:3000 Spring Cloud Gateway，仅内网可达   1.2 公网入口   项目 值    公网 IP 221.193.232.137:8001   转发规则 公网 :8001 → 局域网 192.168.2.206:8001   公网映射...</div></div></div></a><a class="pagination-related" href="/2026/06/16/Software-kkfileview%E5%85%A5%E9%97%A8/" title="kkFileView 文件在线预览服务入门指南"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-16</div><div class="info-item-2">kkFileView 文件在线预览服务入门指南</div></div><div class="info-2"><div class="info-item-1">本文介绍 kkFileView 文件在线预览服务的基本概念、配置和使用方法。  1. 什么是 kkFileViewkkFileView 是一个基于 Spring Boot 的文件在线预览服务，支持多种文件格式的在线预览，包括：    文件类型 支持格式    Office doc, docx, xls, xlsx, ppt, pptx   PDF pdf   图片 jpg, jpeg, png, gif, bmp   文本 txt, html, xml, json, md 等   多媒体 mp3, wav, mp4, flv    2. 快速开始2.1 启动服务Windows： 12cd kkFileView-4.0.0/binstartup.bat  Linux： 12cd kkFileView-4.0.0/bin./startup.sh  服务启动后，访问 http://localhost:8012 即可看到预览界面。 2.2 预览文件通过 URL 参数 url 传递文件地址： 12345# 预览本地文件http://localhost:8012/onlinePreview?...</div></div></div></a><a class="pagination-related" href="/2026/06/01/Kocel-%E4%BD%BF%E7%94%A8ngrok%E6%B5%8B%E8%AF%95/" title="虹光项目：使用 ngrok 进行本地联调与快速验证"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-01</div><div class="info-item-2">虹光项目：使用 ngrok 进行本地联调与快速验证</div></div><div class="info-2"><div class="info-item-1">本文说明在 hongguang（虹光铸造全生命周期管理系统） 日常开发中，如何使用 ngrok 将本地服务暴露到公网，实现 前端改动快速验证 与 后端断点联调 两类场景。  适用读者：前端 &#x2F; 后端开发、实施与测试同事。前置知识：了解项目基本架构（网关 + Nacos + 微服务），可参考 虹光项目：服务器部署架构与从零搭建指南。   1. 为什么需要 ngrok在虹光项目中，浏览器访问的是服务器上的前端（Nginx :93），API 请求经网关（:3000）转发到各微服务。本地开发时常见两类痛点：    场景 痛点 ngrok 的作用    小改动快速验证 本地改完前端需 build 再上传 dist，耗时长 本地启动前端 dev server，用 ngrok 映射公网 URL，测试人员直接访问   后端断点调试 Knife4j 手动填参、查库麻烦；本地服务注册到 Nacos 后，服务器网关无法访问内网 IP ngrok 提供公网 HTTPS 入口，请求经隧道转发到本地 JAR，可配合 IDE 断点   原理简述： 123456789测试人员浏览器 / 服务器网关  ...</div></div></div></a><a class="pagination-related" href="/2026/06/22/Kocel-Flyway%E6%95%B0%E6%8D%AE%E5%BA%93%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E6%8C%87%E5%8D%97/" title="虹光项目：Flyway 数据库版本管理指南"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-22</div><div class="info-item-2">虹光项目：Flyway 数据库版本管理指南</div></div><div class="info-2"><div class="info-item-1">本文整合 Flyway 通用入门知识、hongguang（虹光铸造全生命周期管理系统） 落地配置，以及排产模块（hongguang-scheduling）试点过程中踩过的坑，用于指导全模块数据库变更的统一管理。  适用读者：后端开发、DBA、实施与运维同事。前置知识：了解虹光微服务架构与 Nacos 配置方式，可参考 虹光项目：服务器部署架构与从零搭建指南。   目录 Flyway 是什么 虹光项目现状与目标 技术栈与依赖说明 完整配置流程（新模块接入） SQL 脚本命名规范 执行逻辑与历史表机制 已有数据库接入（Baseline） 虹光项目踩坑记录（必读） 绝对禁止的操作 配置模板速查   1. Flyway 是什么Flyway 是一个开源的数据库版本控制工具（Database Versioning Tool）。    维度 说明    核心作用 管理数据库结构变更（Schema Migration），确保开发、测试、生产环境结构一致   工作原理 扫描 db/migration/ 下的 SQL 脚本，对比历史表中的执行记录，按版本顺序执行未运行的脚本   最大优势 自动化增量...</div></div></div></a><a class="pagination-related" href="/2026/06/01/Kocel-%E6%9C%8D%E5%8A%A1%E9%87%8D%E5%90%AF%E5%AE%9E%E6%97%B6%E7%9B%91%E6%8E%A7/" title="虹光项目：服务重启钉钉实时监控"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/hongguang-logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-01</div><div class="info-item-2">虹光项目：服务重启钉钉实时监控</div></div><div class="info-2"><div class="info-item-1">本文说明如何在 hongguang（虹光铸造全生命周期管理系统） 服务器上，通过 钉钉自定义机器人 Webhook，在微服务重启时自动通知群内同事，避免测试误判、依赖服务中断无人知晓、或未拉最新代码就重启等问题。  适用读者：后端开发、实施与运维同事。前置知识：了解服务器 JAR 部署与 restart.sh 用法，可参考 虹光项目：服务器部署架构与从零搭建指南 第 5 节。   1. 为什么需要重启通知多人协作测试 &#x2F; 开发时，单点重启微服务容易引发以下问题：    问题 表现 通知的作用    测试误判 开发重启某服务，实施人员以为业务代码有 Bug 群内提前告知「服务即将中断 &#x2F; 已恢复」   依赖链断裂 A 服务重启导致 B 服务调用失败，其他开发不知情 @所有人 及时同步，避免无效排查   代码版本不一致 他人未拉最新代码就重启，环境状态与预期不符 操作人、时间一目了然，便于追溯   目标流程： 123456789开发人员执行 ./xxx/restart.sh        │        ├─► ① 钉钉：「即将重启」(@所有人)        ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">CSDNzjl</div><div class="author-info-description">服务器 · 部署 · 开发</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CSDNzjl"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CSDNzjl" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来访 CSDNzjl 的技术笔记</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%BB%84%E4%BB%B6%E8%81%8C%E8%B4%A3%E4%B8%80%E8%A7%88"><span class="toc-number">2.</span> <span class="toc-text">1. 组件职责一览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E9%85%8D%E7%BD%AE"><span class="toc-number">2.1.</span> <span class="toc-text">关键配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%95%B0%E6%8D%AE%E6%B5%81%E9%80%9A%E9%93%BE%E8%B7%AF%EF%BC%88%E6%8C%89%E8%B7%AF%E5%BE%84%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">2. 数据流通链路（按路径）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%80%BB%E8%A7%88%E6%97%B6%E5%BA%8F"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 总览时序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%8A%E4%BC%A0%E8%B7%AF%E5%BE%84%E6%B5%81%E8%BD%AC"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 上传路径流转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E9%A2%84%E8%A7%88%E8%B7%AF%E5%BE%84%E6%B5%81%E8%BD%AC%EF%BC%88%E6%9C%AA%E4%BF%9D%E5%AD%98-%E5%B7%B2%E4%BF%9D%E5%AD%98%E5%85%B1%E7%94%A8%E6%8B%BC-URL-%E6%96%B9%E5%BC%8F%EF%BC%89"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 预览路径流转（未保存 &#x2F; 已保存共用拼 URL 方式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E4%B8%8B%E8%BD%BD%E8%B7%AF%E5%BE%84%E6%B5%81%E8%BD%AC"><span class="toc-number">3.4.</span> <span class="toc-text">2.4 下载路径流转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E4%B8%9A%E5%8A%A1%E4%BF%9D%E5%AD%98%E8%B7%AF%E5%BE%84%E6%B5%81%E8%BD%AC"><span class="toc-number">3.5.</span> <span class="toc-text">2.5 业务保存路径流转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-Nginx-%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84%EF%BC%88%E5%B1%80%E5%9F%9F%E7%BD%91-80-%E5%85%AC%E7%BD%91-8001%EF%BC%89"><span class="toc-number">3.6.</span> <span class="toc-text">2.6 Nginx 路径映射（局域网 :80 &#x2F; 公网 :8001）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%90%84%E6%A0%BC%E5%BC%8F%E9%A2%84%E8%A7%88%E5%88%86%E5%88%AB%E8%A6%81%E4%BB%80%E4%B9%88"><span class="toc-number">4.</span> <span class="toc-text">3. 各格式预览分别要什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">5.</span> <span class="toc-text">4. 遇到的问题与解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-A%EF%BC%9ATXT-%E5%8F%AF%E9%A2%84%E8%A7%88%EF%BC%8CPDF-%E9%A1%B5%E9%9D%A2%E7%81%B0%E5%B1%8F-%E7%A9%BA%E7%99%BD%EF%BC%8C%E4%BD%86%E6%BA%90%E6%96%87%E4%BB%B6%E5%8F%AF%E4%B8%8B%E8%BD%BD"><span class="toc-number">5.1.</span> <span class="toc-text">问题 A：TXT 可预览，PDF 页面灰屏 &#x2F; 空白，但源文件可下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-B%EF%BC%9A%E5%B1%80%E5%9F%9F%E7%BD%91%E9%A2%84%E8%A7%88%E6%AD%A3%E5%B8%B8%EF%BC%8C%E5%85%AC%E7%BD%91%E5%90%8C%E6%97%B6%E8%A6%81%E4%B8%8A%E4%BC%A0-%E4%B8%8B%E8%BD%BD-%E9%A2%84%E8%A7%88"><span class="toc-number">5.2.</span> <span class="toc-text">问题 B：局域网预览正常，公网同时要上传 &#x2F; 下载 &#x2F; 预览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-C%EF%BC%9A%E6%9C%AA%E7%82%B9%E4%B8%9A%E5%8A%A1%E3%80%8C%E4%BF%9D%E5%AD%98%E3%80%8D%E6%97%B6%EF%BC%8C%E9%A2%84%E8%A7%88-%E4%B8%8B%E8%BD%BD%E4%BB%8E%E5%93%AA%E6%9D%A5%EF%BC%9F"><span class="toc-number">5.3.</span> <span class="toc-text">问题 C：未点业务「保存」时，预览&#x2F;下载从哪来？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%85%8D%E7%BD%AE%E4%B8%8E-Nginx-%E5%8F%82%E8%80%83%E7%89%87%E6%AE%B5"><span class="toc-number">6.</span> <span class="toc-text">5. 配置与 Nginx 参考片段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-kkFileView"><span class="toc-number">6.1.</span> <span class="toc-text">5.1 kkFileView</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Nacos"><span class="toc-number">6.2.</span> <span class="toc-text">5.2 Nacos</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Nginx%EF%BC%88%E4%B8%A4%E5%85%A5%E5%8F%A3%E5%9D%87%E9%9C%80%E5%85%B7%E5%A4%87%EF%BC%89"><span class="toc-number">6.3.</span> <span class="toc-text">5.3 Nginx（两入口均需具备）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E9%AA%8C%E8%AF%81%E6%B8%85%E5%8D%95"><span class="toc-number">7.</span> <span class="toc-text">6. 验证清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE%EF%BC%88%E4%BE%BF%E4%BA%8E%E5%AF%B9%E7%85%A7%EF%BC%89"><span class="toc-number">8.</span> <span class="toc-text">7. 相关代码位置（便于对照）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-number">9.</span> <span class="toc-text">8. 一句话总结</span></a></li></ol></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By CSDNzjl</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">CSDNzjl 的技术笔记</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const parseViewBox = viewBox => {
+    if (!viewBox) return null
+    const parts = viewBox.trim().split(/[\s,]+/).map(n => Number(n))
+    if (parts.length !== 4 || parts.some(n => Number.isNaN(n))) return null
+    return parts
+  }
+
+  const getSvgViewBox = svg => {
+    const attr = parseViewBox(svg.getAttribute('viewBox'))
+    if (attr) return attr
+
+    // Fallback: use bbox to build a viewBox
+    try {
+      const bbox = svg.getBBox()
+      if (bbox && bbox.width && bbox.height) return [bbox.x, bbox.y, bbox.width, bbox.height]
+    } catch (e) {
+      // getBBox may fail on some edge cases; ignore
+    }
+
+    const w = Number(svg.getAttribute('width')) || 0
+    const h = Number(svg.getAttribute('height')) || 0
+    if (w > 0 && h > 0) return [0, 0, w, h]
+    return [0, 0, 100, 100]
+  }
+
+  const setSvgViewBox = (svg, vb) => {
+    svg.setAttribute('viewBox', `${vb[0]} ${vb[1]} ${vb[2]} ${vb[3]}`)
+  }
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v))
+
+  const openSvgInNewTab = ({ source, initViewBox }) => {
+    const getClonedSvg = () => {
+      if (typeof source === 'string') {
+        const template = document.createElement('template')
+        template.innerHTML = source.trim()
+        const svg = template.content.querySelector('svg')
+        return svg ? svg.cloneNode(true) : null
+      }
+      if (source && typeof source.cloneNode === 'function') {
+        return source.cloneNode(true)
+      }
+      return null
+    }
+
+    const clone = getClonedSvg()
+    if (!clone) return
+    if (initViewBox && initViewBox.length === 4) {
+      clone.setAttribute('viewBox', initViewBox.join(' '))
+    }
+    if (!clone.getAttribute('xmlns')) clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    if (!clone.getAttribute('xmlns:xlink') && clone.outerHTML.includes('xlink:')) {
+      clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+    }
+    // inject background to match current theme
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+    const bg = getComputedStyle(document.body).backgroundColor || (isDark ? '#1e1e1e' : '#ffffff')
+    if (!clone.style.background) clone.style.background = bg
+
+    const serializer = new XMLSerializer()
+    const svgSource = serializer.serializeToString(clone)
+    const htmlSource = `<!doctype html><html><head><meta charset="utf-8" />
+      <style>
+        html, body { width: 100%; height: 100%; margin: 0; display: flex; align-items: center; justify-content: center; background: ${bg}; }
+        svg { max-width: 100%; max-height: 100%; height: auto; width: auto; }
+      </style>
+      </head><body>${svgSource}</body></html>`
+    const blob = new Blob([htmlSource], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    window.open(url, '_blank', 'noopener')
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+  }
+
+  const attachMermaidViewerButton = wrap => {
+    let btn = wrap.querySelector('.mermaid-open-btn')
+    if (!btn) {
+      btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = 'mermaid-open-btn'
+      wrap.appendChild(btn)
+    }
+
+    btn.innerHTML = '<i class="fa fa-search fa-fw" aria-hidden="true"></i>'
+
+    if (!btn.__mermaidViewerBound) {
+      btn.addEventListener('click', e => {
+        e.preventDefault()
+        e.stopPropagation()
+        const svg = wrap.__mermaidOriginalSvg || wrap.querySelector('svg')
+        if (!svg) return
+        const initViewBox = wrap.__mermaidInitViewBox
+        if (typeof svg === 'string') {
+          openSvgInNewTab({ source: svg, initViewBox })
+          return
+        }
+        openSvgInNewTab({ source: svg, initViewBox })
+      })
+      btn.__mermaidViewerBound = true
+    }
+  }
+
+  // Zoom around a point (px, py) in the SVG viewport (in viewBox coordinates)
+  const zoomAtPoint = (vb, factor, px, py) => {
+    const w = vb[2] * factor
+    const h = vb[3] * factor
+    const nx = px - (px - vb[0]) * factor
+    const ny = py - (py - vb[1]) * factor
+    return [nx, ny, w, h]
+  }
+
+  const initMermaidGestures = wrap => {
+    const svg = wrap.querySelector('svg')
+    if (!svg) return
+
+    // Ensure viewBox exists so gestures always work
+    const initVb = getSvgViewBox(svg)
+    wrap.__mermaidInitViewBox = initVb
+    wrap.__mermaidCurViewBox = initVb.slice()
+    setSvgViewBox(svg, initVb)
+
+    // Avoid binding multiple times on themeChange/pjax
+    if (wrap.__mermaidGestureBound) return
+    wrap.__mermaidGestureBound = true
+
+    // Helper: map client (viewport) coordinate -> viewBox coordinate
+    const clientToViewBox = (clientX, clientY) => {
+      const rect = svg.getBoundingClientRect()
+      const vb = wrap.__mermaidCurViewBox || getSvgViewBox(svg)
+      const x = vb[0] + (clientX - rect.left) * (vb[2] / rect.width)
+      const y = vb[1] + (clientY - rect.top) * (vb[3] / rect.height)
+      return { x, y, rect, vb }
+    }
+
+    const state = {
+      pointers: new Map(),
+      startVb: null,
+      startDist: 0,
+      startCenter: null
+    }
+
+    const clampVb = vb => {
+      const init = wrap.__mermaidInitViewBox || vb
+      const minW = init[2] * 0.1
+      const maxW = init[2] * 10
+      const minH = init[3] * 0.1
+      const maxH = init[3] * 10
+      vb[2] = clamp(vb[2], minW, maxW)
+      vb[3] = clamp(vb[3], minH, maxH)
+      return vb
+    }
+
+    const setCurVb = vb => {
+      vb = clampVb(vb)
+      wrap.__mermaidCurViewBox = vb
+      setSvgViewBox(svg, vb)
+    }
+
+    const onPointerDown = e => {
+      // Allow only primary button for mouse
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+      svg.setPointerCapture(e.pointerId)
+      state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+      if (state.pointers.size === 1) {
+        state.startVb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+      } else if (state.pointers.size === 2) {
+        const pts = [...state.pointers.values()]
+        const dx = pts[0].x - pts[1].x
+        const dy = pts[0].y - pts[1].y
+        state.startDist = Math.hypot(dx, dy)
+        state.startVb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+        state.startCenter = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 }
+      }
+    }
+
+    const onPointerMove = e => {
+      if (!state.pointers.has(e.pointerId)) return
+      state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+      // Pan with 1 pointer
+      if (state.pointers.size === 1 && state.startVb) {
+        const p = [...state.pointers.values()][0]
+        const prev = { x: e.clientX - e.movementX, y: e.clientY - e.movementY }
+        // movementX/Y unreliable on touch, compute from stored last position
+        const last = wrap.__mermaidLastSinglePointer || p
+        const dxClient = p.x - last.x
+        const dyClient = p.y - last.y
+        wrap.__mermaidLastSinglePointer = p
+
+        const { rect } = clientToViewBox(p.x, p.y)
+        const vb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+        const dx = dxClient * (vb[2] / rect.width)
+        const dy = dyClient * (vb[3] / rect.height)
+        setCurVb([vb[0] - dx, vb[1] - dy, vb[2], vb[3]])
+        return
+      }
+
+      // Pinch zoom with 2 pointers
+      if (state.pointers.size === 2 && state.startVb && state.startDist > 0) {
+        const pts = [...state.pointers.values()]
+        const dx = pts[0].x - pts[1].x
+        const dy = pts[0].y - pts[1].y
+        const dist = Math.hypot(dx, dy)
+        if (!dist) return
+        const factor = state.startDist / dist // dist bigger => zoom in (viewBox smaller)
+
+        const cx = (pts[0].x + pts[1].x) / 2
+        const cy = (pts[0].y + pts[1].y) / 2
+        const centerClient = { x: cx, y: cy }
+
+        const pxy = clientToViewBox(centerClient.x, centerClient.y)
+        const cpx = pxy.x
+        const cpy = pxy.y
+
+        const vb = zoomAtPoint(state.startVb, factor, cpx, cpy)
+        setCurVb(vb)
+      }
+    }
+
+    const onPointerUpOrCancel = e => {
+      state.pointers.delete(e.pointerId)
+      if (state.pointers.size === 0) {
+        state.startVb = null
+        state.startDist = 0
+        state.startCenter = null
+        wrap.__mermaidLastSinglePointer = null
+      } else if (state.pointers.size === 1) {
+        // reset single pointer baseline to avoid jump
+        wrap.__mermaidLastSinglePointer = [...state.pointers.values()][0]
+      }
+    }
+
+    // Wheel zoom (mouse/trackpad)
+    const onWheel = e => {
+      // ctrlKey on mac trackpad pinch; we treat both as zoom
+      e.preventDefault()
+      const delta = e.deltaY
+      const zoomFactor = delta > 0 ? 1.1 : 0.9
+      const { x, y } = clientToViewBox(e.clientX, e.clientY)
+      const vb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+      setCurVb(zoomAtPoint(vb, zoomFactor, x, y))
+    }
+
+    const onDblClick = () => {
+      const init = wrap.__mermaidInitViewBox
+      if (!init) return
+      wrap.__mermaidCurViewBox = init.slice()
+      setSvgViewBox(svg, init)
+    }
+
+    svg.addEventListener('pointerdown', onPointerDown)
+    svg.addEventListener('pointermove', onPointerMove)
+    svg.addEventListener('pointerup', onPointerUpOrCancel)
+    svg.addEventListener('pointercancel', onPointerUpOrCancel)
+    svg.addEventListener('wheel', onWheel, { passive: false })
+    svg.addEventListener('dblclick', onDblClick)
+  }
+
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+
+      // Clear old render (themeChange/pjax will rerun)
+      const oldSvg = item.querySelector('svg')
+      if (oldSvg) oldSvg.remove()
+      item.__mermaidGestureBound = false
+
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+        if (true) initMermaidGestures(item)
+        item.__mermaidOriginalSvg = svg
+        if (true) attachMermaidViewerButton(item)
+      }
+
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
